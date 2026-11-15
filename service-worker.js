@@ -1,5 +1,5 @@
 /* TradeLedger PWA Service Worker */
-const CACHE_NAME = "tradeledger-pwa-v1";
+const CACHE_NAME = "tradeledger-pwa-v3";
 const APP_SHELL = [
   "./",
   "./index.html",

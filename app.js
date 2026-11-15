@@ -322,28 +322,82 @@ async function loadReportsFromDatabase() {
    TRADING MODE / NAVIGATION
 ========================================== */
 
+function ensureModeFieldManagerSections() {
+  const base = $("fieldManagerSection");
+  const intraday = $("intradayWorkspace");
+  if (!base || !intraday) return;
+
+  const definitions = [
+    ["swingWorkspace", "swingFieldManagerSection", "swingFieldManagerList", "swingAddFieldBtn"],
+    ["longtermWorkspace", "longtermFieldManagerSection", "longtermFieldManagerList", "longtermAddFieldBtn"]
+  ];
+
+  definitions.forEach(([workspaceId, sectionId, listId, buttonId]) => {
+    const workspace = $(workspaceId);
+    if (!workspace || $(sectionId)) return;
+    const clone = base.cloneNode(true);
+    clone.id = sectionId;
+    const list = clone.querySelector("#fieldManagerList");
+    if (list) {
+      list.id = listId;
+      list.classList.add("mode-field-manager-list");
+    }
+    const addButton = clone.querySelector("#addFieldBtn");
+    if (addButton) {
+      addButton.id = buttonId;
+      addButton.classList.add("mode-add-field-btn");
+    }
+    workspace.appendChild(clone);
+    const navButton = workspace.querySelector('[data-section="fieldManagerSection"]');
+    if (navButton) navButton.dataset.section = sectionId;
+  });
+
+  const baseList = base.querySelector("#fieldManagerList");
+  if (baseList) baseList.classList.add("mode-field-manager-list");
+  const baseButton = base.querySelector("#addFieldBtn");
+  if (baseButton) baseButton.classList.add("mode-add-field-btn");
+}
+
+function getModeFieldManagerSectionId(mode = currentMode) {
+  if (mode === "swing") return "swingFieldManagerSection";
+  if (mode === "longterm") return "longtermFieldManagerSection";
+  return "fieldManagerSection";
+}
+
 function mountSharedTradeSections(workspaceId) {
   const workspace = $(workspaceId);
   const form = $("tradeFormSection");
   const journal = $("tradeJournalSection");
   const period = $("periodOverviewSection");
   const reports = $("reportsSection");
-  const fieldManager = $("fieldManagerSection");
+  const fieldManager = $(getModeFieldManagerSectionId());
   if (!workspace || !form || !journal || !period || !reports || !fieldManager) return;
 
-  // Add Trade, Journal, Period Overview and Reports & Analytics are shared
-  // sections. Move the same DOM into the active trading workspace so every
-  // trading mode gets the same features without duplicating storage or logic.
+  // Keep the shared data logic, but always mount the visible sections only
+  // inside the active workspace. This prevents Swing/Long Term from showing
+  // Add Trade/Journal/Period/Reports/Field Manager underneath Dashboard.
+  [form,journal,period,reports,fieldManager].forEach(section => {
+    section.classList.remove("active");
+    section.classList.add("hidden");
+    section.parentElement?.appendChild(section);
+  });
+
   workspace.appendChild(form);
   workspace.appendChild(journal);
   workspace.appendChild(period);
   workspace.appendChild(reports);
   workspace.appendChild(fieldManager);
 
+  [form,journal,period,reports,fieldManager].forEach(section => {
+    section.classList.remove("active");
+    section.classList.add("hidden");
+  });
+
   renderStandardFormFields();
   renderCustomFormFields();
   renderJournal();
   renderPeriodOverview();
+  renderFieldList();
 }
 
 function setModeNav(sectionId) {
@@ -397,7 +451,9 @@ function setTradingMode(mode) {
     currentSection = dashboardId;
     const workspace = $(workspaceId);
     workspace?.querySelectorAll(".page-section").forEach(section => {
-      section.classList.toggle("active", section.id === dashboardId);
+      const active = section.id === dashboardId;
+      section.classList.toggle("active", active);
+      section.classList.toggle("hidden", !active);
     });
     setModeNav(dashboardId);
     renderModeDashboard(mode);
@@ -485,7 +541,9 @@ function showSection(sectionId) {
 
   if (activeWorkspace) {
     activeWorkspace.querySelectorAll(".page-section").forEach(section => {
-      section.classList.toggle("active", section === target);
+      const active = section === target;
+      section.classList.toggle("active", active);
+      section.classList.toggle("hidden", !active);
     });
 
     activeWorkspace.querySelectorAll(".nav-btn").forEach(button => {
@@ -1176,7 +1234,7 @@ function getActiveFieldManagerList() {
     currentMode === "swing" ? "swingWorkspace" :
     currentMode === "longterm" ? "longtermWorkspace" : "";
   const workspace = workspaceId ? $(workspaceId) : null;
-  return workspace?.querySelector("#fieldManagerList") || $("fieldManagerList");
+  return workspace?.querySelector(".mode-field-manager-list") || workspace?.querySelector("#fieldManagerList");
 }
 
 function renderFieldList() {
@@ -2717,12 +2775,14 @@ function setupEventListeners() {
   $("journalSearch")?.addEventListener("input",renderJournal);
   $("exportJournalCsvBtn")?.addEventListener("click",exportJournalCSV);
 
-  $("addFieldBtn")?.addEventListener("click",() => {
-    closeFieldModal();
-    if ($("fieldModalTitle")) {
-      $("fieldModalTitle").textContent = "Add Custom Field";
-    }
-    openFieldModal();
+  document.querySelectorAll(".mode-add-field-btn, #addFieldBtn").forEach(button => {
+    button.addEventListener("click",() => {
+      closeFieldModal();
+      if ($("fieldModalTitle")) {
+        $("fieldModalTitle").textContent = "Add Custom Field";
+      }
+      openFieldModal();
+    });
   });
 
   $("fieldForm")?.addEventListener("submit",saveField);
@@ -2880,6 +2940,7 @@ async function initializeDatabaseAndData() {
 
 async function startApp() {
   try {
+    ensureModeFieldManagerSections();
     setupEventListeners();
 
     setTradingMode("intraday");
