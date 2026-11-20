@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#0b1220" name="theme-color"/>
+<meta content="TradeLedger" name="application-name"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="TradeLedger" name="apple-mobile-web-app-title"/>
+<link href="manifest.json" rel="manifest"/>
+<link href="favicon-64.png" rel="icon" sizes="64x64" type="image/png"/>
+<link href="icon-192.png" rel="apple-touch-icon" sizes="192x192"/>
+<title>TradeLedger</title>
+<link href="style.css?v=20261119-color-modal-1" rel="stylesheet"/>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+</head>
+<body>
+<header class="topbar">
+<div class="brand">
+<div class="brand-logo-wrap"><img alt="TradeLedger logo" class="brand-logo" src="icon-192.png"/></div>
+<div><h1>TradeLedger</h1><small>Trading Journal</small></div>
+</div>
+<button class="primary-btn" id="newTradeBtn">+ New Trade</button>
+</header>
+<nav class="mode-nav">
+<button class="mode-btn active" data-mode="intraday">Intraday Trading</button>
+<button class="mode-btn" data-mode="swing">Swing Trading</button>
+<button class="mode-btn" data-mode="longterm">Long Term Trading</button>
+<button class="mode-btn" data-mode="graph">Graph / Chart</button>
+<button class="mode-btn" data-mode="broker">Broker</button>
+<button class="mode-btn" data-mode="backup">Backup</button>
+<button class="mode-btn" data-mode="install">Install App</button>
+</nav>
+<main class="app-container">
+<section class="workspace" id="intradayWorkspace">
+<nav class="main-nav">
+<button class="nav-btn active" data-section="dashboardSection">Dashboard</button>
+<button class="nav-btn" data-section="tradeFormSection">Add Trade</button>
+<button class="nav-btn" data-section="tradeJournalSection">Journal</button>
+<button class="nav-btn" data-section="periodOverviewSection">Period Overview</button>
+<button class="nav-btn" data-section="reportsSection">Reports &amp; Analytics</button>
+<button class="nav-btn" data-section="fieldManagerSection">Field Manager</button>
+</nav>
+<section class="page-section active" id="dashboardSection">
+<div class="section-heading"><div><h2>Dashboard</h2></div></div>
+<div class="stats-grid dashboard-stats">
+<article class="stat-card"><span>Total Trades</span><strong id="dashTotalTrades">0</strong></article>
+<article class="stat-card"><span>Winning Trades</span><strong id="dashWins">0</strong></article>
+<article class="stat-card"><span>Losing Trades</span><strong id="dashLosses">0</strong></article>
+<article class="stat-card"><span>Win Rate</span><strong id="dashWinRate">0%</strong></article>
+<article class="stat-card"><span>Loss Rate</span><strong id="dashLossRate">0%</strong></article>
+<article class="stat-card"><span>Gross Profit</span><strong id="dashGrossPL">₹0.00</strong></article>
+<article class="stat-card"><span>Total Charges</span><strong id="dashCharges">₹0.00</strong></article>
+<article class="stat-card"><span>Net Profit</span><strong id="dashNetPL">₹0.00</strong></article>
+</div>
+</section>
+<section class="page-section" id="tradeFormSection">
+<div class="section-heading"><div><h2 id="tradeFormTitle">Add Trade</h2><p>Enter your trade details below</p></div></div>
+<form id="tradeForm">
+<input id="tradeId" type="hidden"/>
+<div class="form-panel"><h3>Trade Details</h3><div class="form-grid" id="basicFieldsContainer"></div><div id="customBasicFields"></div></div>
+<div class="form-panel"><h3>Buy Details</h3><div class="form-grid" id="buyFieldsContainer"></div><div id="customBuyFields"></div></div>
+<div class="form-panel"><h3>Sell Details</h3><div class="form-grid" id="sellFieldsContainer"></div><div id="customSellFields"></div></div>
+<div class="form-panel"><h3>Profit &amp; Loss</h3><div class="form-grid" id="plFieldsContainer"></div><div id="customPLFields"></div></div>
+<div class="form-panel"><h3>Notes &amp; Attachments</h3><div class="form-grid" id="attachmentFieldsContainer"></div><div id="customAttachmentFields"></div></div>
+<div class="form-actions"><button class="primary-btn" id="saveTradeBtn" type="submit">Save Trade</button><button class="secondary-btn" id="resetTradeBtn" type="button">Reset</button></div>
+</form>
+</section>
+<section class="page-section" id="tradeJournalSection">
+<div class="section-heading"><div><h2>Trade Journal</h2><p>View, edit and manage your trades</p></div>
+<div class="export-menu-wrap">
+<button class="secondary-btn export-menu-trigger" id="exportJournalBtn" type="button">Export ▾</button>
+<div class="export-menu hidden" id="exportJournalMenu">
+<button data-export-action="journal-csv" type="button">Export CSV</button>
+<button data-export-action="journal-pdf" type="button">Export PDF</button>
+</div>
+</div>
+</div>
+<div class="toolbar"><input id="journalSearch" placeholder="Search stock, voucher or notes..." type="search"/><span id="journalTradeCount">0 trades</span></div>
+<div class="table-wrap"><table><thead id="journalHead"></thead><tbody id="journalBody"><tr><td class="empty-cell">No trades recorded yet.</td></tr></tbody></table></div>
+</section>
+<section class="page-section" id="periodOverviewSection">
+<div class="section-heading"><div><h2>Period Overview</h2><p>Review performance within a selected date range</p></div></div>
+<div class="panel"><div class="form-grid period-filter">
+<label>Start Date<input id="periodStartDate" type="date"/></label><label>End Date<input id="periodEndDate" type="date"/></label>
+<div class="filter-actions"><button class="primary-btn" id="periodApplyBtn" type="button">Apply</button><button class="secondary-btn" id="periodResetBtn" type="button">Reset</button></div>
+</div><p class="muted-text" id="periodMessage"></p><div class="stats-grid">
+<article class="stat-card"><span>Gross P&amp;L</span><strong id="periodGrossPL">₹0.00</strong></article>
+<article class="stat-card"><span>Total Charges</span><strong id="periodTotalCharges">₹0.00</strong></article>
+<article class="stat-card"><span>Net P&amp;L</span><strong id="periodNetPL">₹0.00</strong></article>
+</div></div>
+</section>
+<section class="page-section" id="reportsSection">
+<div class="section-heading"><div><h2>Reports &amp; Analytics</h2><p>Manually maintain your trading reports</p></div></div>
+<div class="report-tabs"><button class="report-tab active" data-report-period="daily">Daily</button><button class="report-tab" data-report-period="weekly">Weekly</button><button class="report-tab" data-report-period="monthly">Monthly</button><button class="report-tab" data-report-period="yearly">Yearly</button></div>
+<div class="report-toolbar spreadsheet-toolbar"><div class="sheet-toolbar-row sheet-toolbar-format-row"><div class="report-format-group toolbar-color-group"><label>Text Color<button class="color-tool-btn" id="reportTextColorBtn" type="button"><span class="color-swatch" id="reportTextColorSwatch"></span><span>Choose Color</span></button><input hidden="" id="reportTextColor" type="color" value="#edf3fc"/></label><label>Cell Background<button class="color-tool-btn" id="reportCellColorBtn" type="button"><span class="color-swatch" id="reportCellColorSwatch"></span><span>Choose Color</span></button><input hidden="" id="reportCellColor" type="color" value="#111c2e"/></label><label>Font Size<select id="reportFontSize"><option value="12">12</option><option selected="" value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option></select></label><label>Font Family<select id="reportFontFamily"><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option><option value="Tahoma">Tahoma</option><option value="monospace">Monospace</option></select></label></div><div class="report-format-group toolbar-basic-format-group"><button class="format-btn" id="reportBoldBtn" type="button"><b>B</b></button><button class="format-btn" id="reportItalicBtn" type="button"><i>I</i></button><button class="format-btn" id="reportWrapBtn" type="button">Wrap</button><button class="secondary-btn" id="reportSaveAllBtn" type="button">Save Report</button></div></div><div class="sheet-toolbar-row sheet-toolbar-align-row"><div aria-label="Horizontal alignment" class="sheet-icon-group" role="group">
+<button aria-label="Align left" class="sheet-icon-btn" data-report-halign="left" title="Align left" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M10 14h42M10 26h28M10 38h42M10 50h30"></path></g></svg></button>
+<button aria-label="Align center" class="sheet-icon-btn active" data-report-halign="center" title="Align center" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M10 14h44M17 26h30M10 38h44M17 50h30"></path></g></svg></button>
+<button aria-label="Align right" class="sheet-icon-btn" data-report-halign="right" title="Align right" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M12 14h42M26 26h28M12 38h42M24 50h30"></path></g></svg></button>
+</div><div aria-label="Vertical alignment" class="sheet-icon-group" role="group">
+<button aria-label="Align top" class="sheet-icon-btn" data-report-valign="top" title="Align top" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 52V16M20 28l12-12 12 12"></path><path d="M14 54h36"></path></g></svg></button>
+<button aria-label="Align middle" class="sheet-icon-btn active" data-report-valign="middle" title="Align middle" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 10v18M20 22l12 12 12-12M32 54V36M20 46l12-12 12 12"></path><path d="M10 34h44"></path></g></svg></button>
+<button aria-label="Align bottom" class="sheet-icon-btn" data-report-valign="bottom" title="Align bottom" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 12v36M20 36l12 12 12-12"></path><path d="M14 10h36"></path></g></svg></button>
+</div></div><div class="sheet-toolbar-row sheet-toolbar-icon-row"><span aria-label="Undo and Redo controls" class="history-button-group"><button aria-label="Undo" class="sheet-icon-btn history-icon-btn" id="reportUndoBtn" title="Undo" type="button"><svg aria-hidden="true" class="sheet-inline-icon history-inline-icon" viewbox="0 0 64 64"><path d="M12 24h26c10 0 16 6 16 14s-6 14-16 14H24" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"></path><path d="M12 24l12-12M12 24l12 12" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"></path></svg></button><button aria-label="Redo" class="sheet-icon-btn history-icon-btn" id="reportRedoBtn" title="Redo" type="button"><svg aria-hidden="true" class="sheet-inline-icon history-inline-icon" viewbox="0 0 64 64"><path d="M52 24H26c-10 0-16 6-16 14s6 14 16 14h14" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"></path><path d="M52 24L40 12M52 24L40 36" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"></path></svg></button></span><button aria-label="Insert row below selected row" class="sheet-icon-btn" id="reportInsertRowBtn" title="Insert row below selected row" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><rect height="34" rx="2" width="40" x="12" y="10"></rect><path d="M12 27h40M32 45v9M25 54h14"></path><path d="M32 39v12M26 45l6 6 6-6"></path></g></svg></button><button aria-label="Merge selected cells" class="sheet-icon-btn" id="reportMergeBtn" title="Merge selected cells" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M8 20h16M40 20h16M8 44h16M40 44h16"></path><path d="M16 32h32"></path><path d="M26 26l-10 6 10 6M38 26l10 6-10 6"></path></g></svg></button></div></div>
+<div class="report-toolbar spreadsheet-actions-grid"><button class="primary-btn" id="reportAddRowBtn" type="button">+ Add Row</button><button class="secondary-btn" id="reportDeleteRowBtn" type="button">Delete Selected Row</button><span class="muted-text spreadsheet-toolbar-message" id="reportMessage"></span></div>
+<div class="report-table-container" id="reportTableContainer"></div>
+</section>
+<section class="page-section" id="fieldManagerSection">
+<div class="section-heading"><div><h2>Field Manager</h2><p>Manage journal columns and custom fields</p></div><button class="primary-btn" id="addFieldBtn">+ Add Custom Field</button></div>
+<div class="panel"><div id="fieldManagerList"></div></div>
+</section>
+</section>
+<section class="workspace hidden" id="swingWorkspace">
+<div class="section-heading"><div><h2>Swing Trading</h2><p>Swing trade journal</p></div><button class="primary-btn" data-open-trade="">+ New Trade</button></div>
+<nav class="main-nav mode-dashboard-nav"><button class="nav-btn active" data-mode-dashboard="swingDashboardSection" type="button">Dashboard</button><button class="nav-btn" data-section="tradeFormSection" type="button">Add Trade</button><button class="nav-btn" data-section="tradeJournalSection" type="button">Journal</button><button class="nav-btn" data-section="periodOverviewSection" type="button">Period Overview</button><button class="nav-btn" data-section="reportsSection" type="button">Reports &amp; Analytics</button><button class="nav-btn" data-section="fieldManagerSection" type="button">Field Manager</button></nav>
+<section class="page-section active mode-dashboard-section" id="swingDashboardSection">
+<div class="section-heading"><div><h2>Dashboard</h2></div></div>
+<div class="stats-grid dashboard-stats">
+<article class="stat-card"><span>Total Trades</span><strong id="swingDashTotalTrades">0</strong></article>
+<article class="stat-card"><span>Winning Trades</span><strong id="swingDashWins">0</strong></article>
+<article class="stat-card"><span>Losing Trades</span><strong id="swingDashLosses">0</strong></article>
+<article class="stat-card"><span>Win Rate</span><strong id="swingDashWinRate">0%</strong></article>
+<article class="stat-card"><span>Loss Rate</span><strong id="swingDashLossRate">0%</strong></article>
+<article class="stat-card"><span>Gross Profit</span><strong id="swingDashGrossPL">₹0.00</strong></article>
+<article class="stat-card"><span>Total Charges</span><strong id="swingDashCharges">₹0.00</strong></article>
+<article class="stat-card"><span>Net Profit</span><strong id="swingDashNetPL">₹0.00</strong></article>
+</div>
+</section>
+</section>
+<section class="workspace hidden" id="longtermWorkspace">
+<div class="section-heading"><div><h2>Long Term Trading</h2><p>Long-term investment journal</p></div><button class="primary-btn" data-open-trade="">+ New Trade</button></div>
+<nav class="main-nav mode-dashboard-nav"><button class="nav-btn active" data-mode-dashboard="longtermDashboardSection" type="button">Dashboard</button><button class="nav-btn" data-section="tradeFormSection" type="button">Add Trade</button><button class="nav-btn" data-section="tradeJournalSection" type="button">Journal</button><button class="nav-btn" data-section="periodOverviewSection" type="button">Period Overview</button><button class="nav-btn" data-section="reportsSection" type="button">Reports &amp; Analytics</button><button class="nav-btn" data-section="fieldManagerSection" type="button">Field Manager</button></nav>
+<section class="page-section active mode-dashboard-section" id="longtermDashboardSection">
+<div class="section-heading"><div><h2>Dashboard</h2></div></div>
+<div class="stats-grid dashboard-stats">
+<article class="stat-card"><span>Total Trades</span><strong id="longtermDashTotalTrades">0</strong></article>
+<article class="stat-card"><span>Winning Trades</span><strong id="longtermDashWins">0</strong></article>
+<article class="stat-card"><span>Losing Trades</span><strong id="longtermDashLosses">0</strong></article>
+<article class="stat-card"><span>Win Rate</span><strong id="longtermDashWinRate">0%</strong></article>
+<article class="stat-card"><span>Loss Rate</span><strong id="longtermDashLossRate">0%</strong></article>
+<article class="stat-card"><span>Gross Profit</span><strong id="longtermDashGrossPL">₹0.00</strong></article>
+<article class="stat-card"><span>Total Charges</span><strong id="longtermDashCharges">₹0.00</strong></article>
+<article class="stat-card"><span>Net Profit</span><strong id="longtermDashNetPL">₹0.00</strong></article>
+</div>
+</section>
+</section>
+<section class="workspace hidden" id="brokerWorkspace">
+<div class="section-heading"><div><h2>Broker</h2><p>Broker Transactions</p></div></div>
+<div class="broker-sheet-toolbar spreadsheet-toolbar"><div class="sheet-toolbar-row sheet-toolbar-format-row"><div class="broker-format-group toolbar-color-group"><label>Text Color<button class="color-tool-btn" id="brokerTextColorBtn" type="button"><span class="color-swatch" id="brokerTextColorSwatch"></span><span>Choose Color</span></button><input hidden="" id="brokerTextColor" type="color" value="#edf3fc"/></label><label>Cell Background<button class="color-tool-btn" id="brokerCellColorBtn" type="button"><span class="color-swatch" id="brokerCellColorSwatch"></span><span>Choose Color</span></button><input hidden="" id="brokerCellColor" type="color" value="#111c2e"/></label><label>Font Size<select id="brokerFontSize"><option value="12">12</option><option selected="" value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option></select></label><label>Font Family<select id="brokerFontFamily"><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option><option value="Tahoma">Tahoma</option><option value="monospace">Monospace</option></select></label></div><div class="broker-format-group toolbar-basic-format-group"><button class="format-btn" id="brokerBoldBtn" type="button"><b>B</b></button><button class="format-btn" id="brokerItalicBtn" type="button"><i>I</i></button><button class="format-btn" id="brokerWrapBtn" type="button">Wrap</button><button class="secondary-btn" id="brokerSaveBtn" type="button">Save</button></div></div><div class="sheet-toolbar-row sheet-toolbar-align-row"><div aria-label="Horizontal alignment" class="sheet-icon-group" role="group">
+<button aria-label="Align left" class="sheet-icon-btn" data-broker-halign="left" title="Align left" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M10 14h42M10 26h28M10 38h42M10 50h30"></path></g></svg></button>
+<button aria-label="Align center" class="sheet-icon-btn active" data-broker-halign="center" title="Align center" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M10 14h44M17 26h30M10 38h44M17 50h30"></path></g></svg></button>
+<button aria-label="Align right" class="sheet-icon-btn" data-broker-halign="right" title="Align right" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"><path d="M12 14h42M26 26h28M12 38h42M24 50h30"></path></g></svg></button>
+</div><div aria-label="Vertical alignment" class="sheet-icon-group" role="group">
+<button aria-label="Align top" class="sheet-icon-btn" data-broker-valign="top" title="Align top" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 52V16M20 28l12-12 12 12"></path><path d="M14 54h36"></path></g></svg></button>
+<button aria-label="Align middle" class="sheet-icon-btn active" data-broker-valign="middle" title="Align middle" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 10v18M20 22l12 12 12-12M32 54V36M20 46l12-12 12 12"></path><path d="M10 34h44"></path></g></svg></button>
+<button aria-label="Align bottom" class="sheet-icon-btn" data-broker-valign="bottom" title="Align bottom" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M32 12v36M20 36l12 12 12-12"></path><path d="M14 10h36"></path></g></svg></button>
+</div></div><div class="sheet-toolbar-row sheet-toolbar-icon-row"><span aria-label="Undo and Redo controls" class="history-button-group"><button aria-label="Undo" class="sheet-icon-btn history-icon-btn" id="brokerUndoBtn" title="Undo" type="button"><svg aria-hidden="true" class="sheet-inline-icon history-inline-icon" viewbox="0 0 64 64"><path d="M12 24h26c10 0 16 6 16 14s-6 14-16 14H24" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"></path><path d="M12 24l12-12M12 24l12 12" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"></path></svg></button><button aria-label="Redo" class="sheet-icon-btn history-icon-btn" id="brokerRedoBtn" title="Redo" type="button"><svg aria-hidden="true" class="sheet-inline-icon history-inline-icon" viewbox="0 0 64 64"><path d="M52 24H26c-10 0-16 6-16 14s-6 14-16 14h14" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-width="7"></path><path d="M52 24L40 12M52 24L40 36" fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"></path></svg></button></span><button aria-label="Insert row below selected row" class="sheet-icon-btn" id="brokerInsertRowBtn" title="Insert row below selected row" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><rect height="34" rx="2" width="40" x="12" y="10"></rect><path d="M12 27h40M32 45v9M25 54h14"></path><path d="M32 39v12M26 45l6 6 6-6"></path></g></svg></button><button aria-label="Merge selected cells" class="sheet-icon-btn" id="brokerMergeBtn" title="Merge selected cells" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><path d="M8 20h16M40 20h16M8 44h16M40 44h16"></path><path d="M16 32h32"></path><path d="M26 26l-10 6 10 6M38 26l10 6-10 6"></path></g></svg></button><button aria-label="Insert column right of selected column" class="sheet-icon-btn" id="brokerInsertColumnBtn" title="Insert column right of selected column" type="button"><svg aria-hidden="true" class="sheet-inline-icon" viewbox="0 0 64 64"><g fill="none" stroke="#f2edf2" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"><rect height="40" rx="2" width="34" x="10" y="12"></rect><path d="M27 12v40M45 32h9M54 25v14"></path><path d="M39 32h12M45 26l6 6-6 6"></path></g></svg></button></div></div>
+<div class="broker-sheet-actions spreadsheet-actions-grid"><button class="primary-btn" id="brokerAddRowBtn" type="button">+ Add Row</button><button class="secondary-btn" id="brokerDeleteRowBtn" type="button">Delete Selected Row</button><button class="primary-btn" id="brokerAddColumnBtn" type="button">+ Add Column</button><button class="secondary-btn" id="brokerEditColumnBtn" type="button">Edit Selected Column</button><button class="danger-btn" id="brokerDeleteColumnBtn" type="button">Delete Selected Column</button><div class="export-menu-wrap">
+<button aria-label="Export" class="secondary-btn export-menu-trigger" id="brokerExportBtn" title="Export" type="button">Export ▾</button>
+<div class="export-menu hidden" id="brokerExportMenu">
+<button data-export-action="broker-csv" type="button">Export CSV</button>
+<button data-export-action="broker-pdf" type="button">Export PDF</button>
+</div>
+</div><span class="muted-text spreadsheet-toolbar-message" id="brokerMessage"></span></div>
+<div class="report-table-container broker-table-container" id="brokerTableContainer"></div>
+</section>
+<section class="page-section graph-chart-section hidden" data-top-level-page="graph" id="graphChartSection">
+<div class="section-heading graph-heading">
+<div>
+<h2>Graph / Chart</h2>
+<p>Trading Performance – Gross P/L vs Net P/L</p>
+</div>
+</div>
+<div class="graph-panel">
+<div class="graph-mode-tabs" id="graphModeTabs">
+<button class="graph-choice active" data-graph-mode="intraday" type="button">Intraday Trading</button>
+<button class="graph-choice" data-graph-mode="swing" type="button">Swing Trading</button>
+<button class="graph-choice" data-graph-mode="longterm" type="button">Long Term Trading</button>
+</div>
+<div class="graph-controls">
+<div class="graph-control-block">
+<label>Chart Type</label>
+<div class="graph-toggle">
+<button class="graph-choice active" data-chart-type="bar" type="button">Bar Chart</button>
+<button class="graph-choice" data-chart-type="line" type="button">Line Chart</button>
+</div>
+</div>
+<div class="graph-control-block period-block">
+<label>Period</label>
+<div class="graph-toggle">
+<button class="graph-choice active" data-graph-period="month" type="button">Month</button>
+<button class="graph-choice" data-graph-period="year" type="button">Year</button>
+</div>
+</div>
+<div class="graph-control-block range-block">
+<label id="graphRangeLabel">Select Range</label>
+<select aria-label="Select range" id="graphRangeSelect"></select>
+</div>
+</div>
+<div class="graph-actions">
+<button class="primary-btn" id="generateGraphBtn" type="button">Generate Chart</button>
+<button class="graph-pdf-btn" id="exportGraphPdfBtn" type="button">Export as PDF</button>
+</div>
+<div class="graph-result" id="graphResult">
+<div class="graph-placeholder">
+<strong>Bar Chart</strong>
+<span>Select trading mode, period and range, then click “Generate Chart”.</span>
+</div>
+</div>
+<div class="graph-summary">
+<div><span>Total Gross Profit &amp; Loss</span><strong id="graphGrossTotal">₹ 0.00</strong></div>
+<div><span>Total Net Profit &amp; Loss</span><strong id="graphNetTotal">₹ 0.00</strong></div>
+</div>
+</div>
+</section>
+<section class="workspace hidden" id="backupWorkspace">
+<div class="section-heading"><div><h2>Google Drive Backup</h2><p>Securely back up and restore your TradeLedger data</p></div></div>
+<div class="panel backup-panel"><div class="drive-status-row"><div><h3>Google Drive Connection</h3><p class="muted-text" id="driveStatus">Not connected</p></div><div class="button-group"><button class="primary-btn" id="connectDriveBtn">Connect Google Drive</button><button class="secondary-btn" disabled="" id="disconnectDriveBtn">Disconnect</button></div></div>
+<div class="divider"></div><h3>Backup</h3><p class="muted-text">Save all trades, custom fields, report tables and settings to your Google Drive backup file.</p><button class="primary-btn" disabled="" id="driveBackupBtn">Backup to Drive</button>
+<div class="divider"></div><h3>Restore</h3><p class="muted-text">Restore replaces the current TradeLedger data with the data in your Drive backup.</p><label>Restore Method<input readonly="" type="text" value="Full Restore"/></label><button class="danger-btn" disabled="" id="restoreDriveBackupBtn">Restore from Google Drive</button><p class="muted-text" id="driveBackupInfo"></p><div class="message-area" id="driveMessage"></div><div id="driveBackupList"></div>
+</div>
+</section>
+<section class="workspace hidden" id="installWorkspace">
+<div class="section-heading install-heading"><div><h2>Install App</h2></div></div>
+<div class="install-app-area">
+<button class="primary-btn install-app-btn" id="installAppBtn" type="button">Install App</button>
+</div>
+</section>
+</main>
+<div class="modal hidden" id="fieldManagerModal"><div class="modal-card"><div class="modal-heading"><h2 id="fieldModalTitle">Add Custom Field</h2><button class="icon-btn" id="closeFieldManagerModal" type="button">×</button></div>
+<form id="fieldForm"><input id="fieldId" type="hidden"/><label>Field ID<input id="fieldCustomId" pattern="[A-Za-z0-9_-]+" placeholder="e.g. setupType" type="text"/><small class="muted-text">Custom field IDs can be edited. Standard IDs are fixed.</small></label><label>Column Heading<input id="fieldName" required="" type="text"/></label><label>Example / Placeholder<input id="fieldPlaceholder" type="text"/></label>
+<label>Field Type<select id="fieldType"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="textarea">Long Text</option><option value="select">Dropdown</option></select></label>
+<label>Section<select id="fieldSection"><option value="basic">Trade Details</option><option value="buy">Buy Details</option><option value="sell">Sell Details</option><option value="pl">Profit &amp; Loss</option><option value="attachments">Notes &amp; Attachments</option></select></label>
+<label>Dropdown Options (comma separated)<input id="fieldOptions" type="text"/></label><label>Position<input id="fieldPosition" min="1" type="number" value="1"/></label>
+<label class="checkbox-label"><input checked="" id="fieldInForm" type="checkbox"/> Show in trade form</label><label class="checkbox-label"><input id="fieldRequired" type="checkbox"/> Required field</label>
+<div class="form-actions"><button class="primary-btn" type="submit">Save Field</button><button class="secondary-btn" id="cancelFieldEdit" type="button">Cancel</button></div>
+</form></div></div>
+<div class="modal hidden" id="viewModal"><div class="modal-card large-modal"><div class="modal-heading"><h2>Trade Details</h2><button class="icon-btn" id="closeViewBtn" type="button">×</button></div><div id="viewTradeContent"></div></div></div>
+<div class="modal hidden" id="confirmModal"><div class="modal-card"><h3 id="confirmTitle">Confirm Action</h3><p id="confirmMessage"></p><div class="form-actions"><button class="danger-btn" id="confirmYesBtn">Confirm</button><button class="secondary-btn" id="confirmNoBtn">Cancel</button></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js?v=20261119-color-modal-1"></script>
+<script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js?v=20261119-graph-v35", { scope: "./" })
+          .catch(err => console.warn("TradeLedger service worker registration failed:", err));
+      });
+    }
+  </script>
+</body>
+</html>
