@@ -1,2 +1,2 @@
-# Trade-Journal-
-Trading Journal Android App
+# Trade Journal
+Trading Journal App
