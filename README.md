@@ -1,2 +1,2 @@
-# Trade Journal
+# Trade Book
 Trading Journal App
