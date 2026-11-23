@@ -5183,11 +5183,6 @@ function setupEventListeners() {
 
   // Bind the primary navigation first. If any optional setup below fails
   // (Graph/PWA/etc.), the app must still be navigable between workspaces.
-  document.querySelectorAll(".mode-btn").forEach(button => {
-    button.addEventListener("click",() => {
-      setTradingMode(button.dataset.mode);
-    });
-  });
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click",() => {
@@ -5701,6 +5696,30 @@ function showPasswordResetAfterOtp(){
   window.__tradeBookForgotPassword=true;
 }
 async function setupTradeBookAuth(){
+  // Bind the hamburger and home navigation through delegation so they remain
+  // clickable even if other optional startup code fails or DOM sections are
+  // remounted later. These controls are static and exist from initial HTML.
+  if (!window.__tradeBookPrimaryNavBound) {
+    window.__tradeBookPrimaryNavBound = true;
+    document.addEventListener('click', event => {
+      const menuButton = event.target.closest('#openDrawerBtn');
+      if (menuButton) { openDrawer(); return; }
+      const drawerClose = event.target.closest('#closeDrawerBtn');
+      if (drawerClose) { closeDrawer(); return; }
+      const backdrop = event.target.closest('#drawerBackdrop');
+      if (backdrop) { closeDrawer(); return; }
+      const homeMode = event.target.closest('[data-home-mode]');
+      if (homeMode) { setTradingMode(homeMode.dataset.homeMode); return; }
+      const modeButton = event.target.closest('.mode-btn');
+      if (modeButton) { setTradingMode(modeButton.dataset.mode); return; }
+      const drawerAction = event.target.closest('[data-drawer-action]');
+      if (drawerAction) {
+        if (drawerAction.dataset.drawerAction === 'settings') openSettings();
+        else { closeDrawer(); showTradeBookHome(); }
+        return;
+      }
+    }, {passive:true});
+  }
   if(!authConfigReady()){
     openAuthGate();
     authError('authLoginError','Firebase configuration is missing.');
@@ -5817,16 +5836,6 @@ async function setupTradeBookAuth(){
     ['authSignupPassword','changeNewPassword'].forEach(id=>$(id)?.addEventListener('input',()=>updatePasswordRules(id)));
     updatePasswordRules('authSignupPassword'); updatePasswordRules('changeNewPassword');
 
-    $('openDrawerBtn')?.addEventListener('click',openDrawer);
-    $('closeDrawerBtn')?.addEventListener('click',closeDrawer);
-    $('drawerBackdrop')?.addEventListener('click',closeDrawer);
-    document.querySelectorAll('[data-drawer-action]').forEach(btn=>btn.addEventListener('click',()=>{
-      if(btn.dataset.drawerAction==='settings') openSettings();
-      else { closeDrawer(); showTradeBookHome(); }
-    }));
-    document.querySelectorAll('[data-home-mode]').forEach(btn=>btn.addEventListener('click',()=>{
-      setTradingMode(btn.dataset.homeMode);
-    }));
     $('closeSettingsBtn')?.addEventListener('click',closeSettings);
     $('editProfileBtn')?.addEventListener('click',openProfileEdit);
     $('closeProfileEditBtn')?.addEventListener('click',closeProfileEdit);
